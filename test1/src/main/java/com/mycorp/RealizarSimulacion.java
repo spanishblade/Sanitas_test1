@@ -79,7 +79,6 @@ public class RealizarSimulacion {
     private final SimpleDateFormat sdf = new SimpleDateFormat( "dd/MM/yyyy" );
     private static final Logger LOG = LoggerFactory.getLogger( RealizarSimulacion.class );
     private SimulacionWS servicioSimulacion;
-    
     private static final String SEPARADOR_TIER = "#";
 
     /**
