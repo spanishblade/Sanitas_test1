@@ -185,35 +185,18 @@ public class RealizarSimulacion {
             int contadorBeneficiario = 0;
             double css = 0;
             
-            for( final TarifaBeneficiario tarifaBeneficiario : retorno.getTarifas()
-                    .getTarifaBeneficiarios() ) {
-                List< PrimasPorProducto > listaProductoPorAseg = new ArrayList< >();
-                if( primasDesglosadas.size() > contadorBeneficiario ) {
-                    listaProductoPorAseg = primasDesglosadas.get( contadorBeneficiario );
-                } else {
-                    primasDesglosadas.add( listaProductoPorAseg );
-                }
-
-                Primas primaAsegurado = new Primas();
-                if( primas.size() > contadorBeneficiario ) {
-                    primaAsegurado = primas.get( contadorBeneficiario );
-                } else {
-                    primas.add( primaAsegurado );
-                }
-                int contadorProducto = 0;
-                processTarifasProducto(tarifaBeneficiario, 
-                		lExcepciones, 
-                		oDatosAlta,
-                		listaProductoPorAseg, 
-                		oDatosPlan, 
-                		contadorProducto, 
-                		frecuencia, 
-                		descuentosTotales, 
-                		pagoTotal, 
-                		css);
-                
-                contadorBeneficiario++;
-            }
+            processTarifaBeneficiario(
+            		retorno, 
+            		contadorBeneficiario, 
+            		primasDesglosadas, 
+            		primas, 
+            		errores, 
+            		oDatosAlta, 
+            		oDatosPlan, 
+            		precioConPromocion, 
+            		frecuencia, 
+            		css, 
+            		precioConPromocion);
 
             // Promociones aplicadas a la simulación
             promociones.add( recuperarPromocionesAgrupadas( retorno.getPromociones().getListaPromocionesPoliza(),
@@ -232,7 +215,44 @@ public class RealizarSimulacion {
         return buildHmSimulacion(primas,primasDesglosadas,desglosar,descuentosTotales,precioConPromocion,promociones,recibos,pagoTotal,errores);
     }
     
-    private Set< FrecuenciaEnum > validateFrecuenciasTarificar(Set< FrecuenciaEnum > frecuenciasTarificar,Map< String, Object > hmValores, Collection<?> lBeneficiarios, DatosAlta oDatosAlta) {
+    private void processTarifaBeneficiario(Tarificacion retorno, int contadorBeneficiario, List< List< PrimasPorProducto > > primasDesglosadas, List< Primas > primas, List<String> lExcepciones, DatosAlta oDatosAlta, DatosContratacionPlan oDatosPlan, Double[] descuentosTotales, FrecuenciaEnum frecuencia, Double css, Double[] pagoTotal) {
+    	for( final TarifaBeneficiario tarifaBeneficiario : retorno.getTarifas()
+                .getTarifaBeneficiarios() ) {
+            List< PrimasPorProducto > listaProductoPorAseg = new ArrayList< >();
+            if( (primasDesglosadas).size() > contadorBeneficiario ) {
+                listaProductoPorAseg = primasDesglosadas.get( contadorBeneficiario );
+            } else {
+                primasDesglosadas.add( listaProductoPorAseg );
+            }
+
+            Primas primaAsegurado = new Primas();
+            if( primas.size() > contadorBeneficiario ) {
+                primaAsegurado = primas.get(contadorBeneficiario);
+            } else {
+                primas.add( primaAsegurado );
+            }
+            int contadorProducto = 0;
+            processTarifasProducto(tarifaBeneficiario, 
+            		lExcepciones, 
+            		oDatosAlta,
+            		listaProductoPorAseg, 
+            		oDatosPlan, 
+            		contadorProducto, 
+            		frecuencia, 
+            		descuentosTotales, 
+            		pagoTotal, 
+            		css);
+            
+            contadorBeneficiario++;
+        }
+	}
+
+	private Set< FrecuenciaEnum > validateFrecuenciasTarificar(
+			Set< FrecuenciaEnum > frecuenciasTarificar,
+			Map< String, Object > hmValores, 
+			Collection<?> lBeneficiarios, 
+			DatosAlta oDatosAlta) {
+		
     	if( hmValores.containsKey( StaticVarsContratacion.FREC_MENSUAL ) ) {
             frecuenciasTarificar.clear();
             frecuenciasTarificar.add( FrecuenciaEnum.MENSUAL );
