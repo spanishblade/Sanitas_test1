@@ -28,6 +28,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,7 +81,10 @@ public class RealizarSimulacion {
     private static final Logger LOG = LoggerFactory.getLogger( RealizarSimulacion.class );
     private SimulacionWS servicioSimulacion;
     private static final String SEPARADOR_TIER = "#";
-
+    private Producto producto = new Producto();
+    private final List< Producto > listaProductos = new ArrayList< >();
+    
+    
     /**
      * Método que realiza las llamadas a las diferentes clases de simulación, para tarificar
      *
@@ -646,32 +650,26 @@ public class RealizarSimulacion {
 
     private Producto[] obtenerProductosAsegurado( final List< DatosProductoAlta > productosCobertura,
             final DatosContratacionPlan oDatosPlan ) {
-        final List< Producto > productos = new ArrayList< >();
         if( productosCobertura != null && !productosCobertura.isEmpty() ) {
-            for( final DatosProductoAlta producto : productosCobertura ) {
-                productos.add( obtenerProducto( producto, oDatosPlan ) );
-            }
+        	productosCobertura.forEach(productoCobertura -> this.listaProductos.add( obtenerProducto( productoCobertura, oDatosPlan )));     
         }
-
-        return productos.toArray( new Producto[ 0 ] );
+        return listaProductos.toArray( new Producto[ 0 ] );
     }
 
     private Producto obtenerProducto( final DatosProductoAlta productoAlta,
             final DatosContratacionPlan oDatosPlan ) {
-        final Producto producto = new Producto();
         final int idProducto = productoAlta.getIdProducto();
-        producto.setIdProducto( idProducto );
-        producto.setListaCoberturas( obtenerCoberturas( idProducto, oDatosPlan ) );
+        this.producto.setIdProducto( idProducto );
+        this.producto.setListaCoberturas( obtenerCoberturas( idProducto, oDatosPlan ) );
         return producto;
     }
 
     private Producto obtenerProducto( final ProductoCobertura productoCobertura,
             final DatosContratacionPlan oDatosPlan ) {
-        final Producto producto = new Producto();
         final int idProducto = productoCobertura.getIdProducto();
-        producto.setIdProducto( idProducto );
-        producto.setListaCoberturas( obtenerCoberturas( idProducto, oDatosPlan ) );
-        return producto;
+        this.producto.setIdProducto( idProducto );
+        this.producto.setListaCoberturas( obtenerCoberturas( idProducto, oDatosPlan ) );
+        return this.producto;
     }
 
     private Cobertura[] obtenerCoberturas( final int idProducto, final DatosContratacionPlan oDatosPlan ) {
@@ -900,11 +898,7 @@ public class RealizarSimulacion {
      */
     public static boolean comprobarExcepcion( final List<String> lExcepciones, final String comprobar ) {
         LOG.debug( "Se va a comprobar si " + comprobar + " estÃ¡ en la lista " + lExcepciones );
-        boolean bExcepcion = false;
-        if( comprobar != null && lExcepciones != null && lExcepciones.contains( comprobar ) ) {
-            bExcepcion = true;
-        }
-        return bExcepcion;
+        return comprobar != null && lExcepciones != null && lExcepciones.contains( comprobar );
     }
 
 }
